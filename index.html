@@ -56,7 +56,7 @@ pre{background:var(--cb);color:var(--cf);padding:12px 14px;border-radius:8px;ove
 .panel label{display:flex;gap:10px;align-items:flex-start;cursor:pointer;margin-top:6px}.panel label input{margin-top:5px;accent-color:var(--ok)}
 .clnk{background:none;border:0;color:var(--mu);text-decoration:underline;font-size:13px;cursor:pointer;margin-top:24px}
 code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92em}
-.tree{grid-template-columns:1fr}.lane.al .node{--c:var(--ok)}.lane.al h3{color:var(--ok)}.panel h3{margin:18px 0 6px}</style></head><body><div id="root"></div>
+.tree{grid-template-columns:1fr}.lane.al .node{--c:var(--ok)}.lane.al h3{color:var(--ok)}.panel h3{margin:18px 0 6px}.opt.sel{border-color:var(--ac);background:rgba(42,111,219,.12)}</style></head><body><div id="root"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
 <script>
@@ -355,8 +355,83 @@ function RCard({s,P,toggle,auto,open,setOpen,toCourse}){
    h("h4",null,"Resources"),h("ul",null,s.r.map(x=>h("li",{key:x},x))),
    h("div",{className:"dn"},h("b",null,"Done when: "),s.d)));
 }
+const QZ={
+g2:[["What does len on the string héllo return in Go?",["5","6","It does not compile"],1,"len counts bytes, and é takes two bytes in UTF-8. Convert to []rune to count characters."],
+["Where is the short declaration := allowed?",["Anywhere, including package level","Only inside functions","Only inside main"],1,"At package level you must use var."],
+["What is 7 / 2 when both operands are ints?",["3.5","4","3"],2,"Integer division truncates. Convert an operand to float64 for a fractional result."],
+["After x := 1; if true { x := 2; x++ } what does fmt.Println(x) print?",["1, because the inner := shadows x","3","2"],0,"The := created a new inner x, so the outer x never changed."],
+["What happens after a Go switch case body finishes?",["It falls through to the next case","The switch ends; cases do not fall through by default","The switch restarts"],1,"fallthrough exists but is rare."]],
+g3:[["How does idiomatic Go report an ordinary failure?",["By throwing an exception","By setting a global error code","By returning an error as the last result"],2,"Errors are ordinary values that callers check explicitly."],
+["Which fmt.Errorf verb keeps the original error inspectable by errors.Is?",["%w","%v","%s"],0,"%w wraps the error; %v flattens it to text."],
+["In what order do deferred calls run?",["First in, first out","Last in, first out","Alphabetical order"],1,"The most recently deferred call runs first."],
+["When are the arguments of a deferred call evaluated?",["When the surrounding function returns","Only if a panic occurs","When the defer statement executes"],2,"defer fmt.Println(x) captures x at the moment of the defer statement."],
+["Which function finds an error of a given concrete type in a wrapped chain?",["errors.Is","errors.As","errors.Join"],1,"errors.Is compares values; errors.As matches types and fills a variable."]],
+g4:[["A slice value is made of which three parts?",["Start, end, step","Array, hash, size","Pointer, length, capacity"],2,"The pointer refers to an underlying array."],
+["a := []int{1,2,3,4}; b := a[:2]; b = append(b, 99). What happens to a?",["a[2] becomes 99 because they share an array","a is unchanged","It fails to compile"],0,"b has spare capacity, so append writes into the shared array."],
+["What happens when you write to a nil map?",["It panics","It creates the map","The write is ignored"],0,"Always initialise maps with make or a literal before writing."],
+["How do you tell a missing key from a key holding the zero value?",["Compare the result to nil","Use v, ok := m[k]","Call len on the value"],1,"The comma-ok form reports whether the key exists."],
+["Which type cannot be a map key?",["string","a struct of ints","a slice"],2,"Keys must be comparable; slices, maps and functions are not."]],
+g5:[["How does a Go type satisfy an interface?",["By inheriting from a base class","By declaring implements","By having the required methods"],2,"Satisfaction is implicit."],
+["Counter has func (c *Counter) Inc(). Can a plain Counter value satisfy an interface requiring Inc?",["No, only *Counter has Inc in its method set","Yes, always","Only inside goroutines"],0,"Value method sets include only value-receiver methods."],
+["Which guideline is commonly followed?",["Accept concrete types, return interfaces","Accept interfaces, return concrete types","Always use any"],1,"It keeps functions flexible and results rich."],
+["A nil *MyErr is returned inside an error interface. What does err != nil report?",["false","It panics","true, because the interface holds a type"],2,"An interface is nil only when both type and value are nil."],
+["Where is it best to define a small interface?",["In the package that consumes it","Next to the implementing type","In a global interfaces package"],0,"Consumer-side interfaces keep packages decoupled."]],
+g6:[["What happens to running goroutines when main returns?",["They finish first","They keep running in the background","The program exits and they stop"],2,"Use a WaitGroup or channel to wait."],
+["Which command detects data races?",["go test -race","go vet","go fmt"],0,"The race detector reports conflicting accesses with stack traces."],
+["Who should close a channel?",["The receiver","The sender","Any goroutine at any time"],1,"Sending on a closed channel panics."],
+["Why call wg.Add(1) before the go statement?",["Go requires alphabetical order","It makes the goroutine faster","So Wait cannot return too early"],2,"Add inside the goroutine can race with Wait."],
+["What is a table-driven test?",["A test of map types","A slice of cases run in a loop with t.Run subtests","A test that reads a database table"],1,"Adding a case is one line, and failures name the case."]],
+d1:[["Which growth rate describes binary search on a sorted slice?",["O(log n)","O(n)","O(n log n)"],0,"Each step halves the range."],
+["A loop over n followed by a nested loop over n has which Big-O?",["O(n)","O(2n)","O(n^2)"],2,"Keep the dominant term."],
+["Why is building a string by repeated concatenation O(n^2)?",["Go loops are slow","Strings are immutable, so each concatenation copies the old contents","Strings are stored as maps"],1,"Use strings.Builder instead."],
+["Which command runs benchmarks?",["go bench","go run -bench","go test -bench=."],2,"Add -benchmem to see allocations."],
+["When can an O(n) algorithm beat an O(log n) one?",["For small n where constants dominate","Never","Only for huge n"],0,"Big-O hides constants, so measure."]],
+d2:[["Why is array indexing O(1)?",["Arrays are sorted","The address is computed directly from the index","A hash table is used"],1,"Address = start + i * size."],
+["Why is append amortized O(1) with doubling?",["Append never copies","Go uses a linked list","Copies are rare, so their cost spreads over many appends"],2,"Total copying stays under 2n for n pushes."],
+["Cost of inserting at the front of a slice of n items?",["O(1)","O(log n)","O(n)"],2,"Every element must shift."],
+["After RemoveAt, why zero the vacated slot?",["To release a stale pointer so the garbage collector can free the object","To make the slice shorter","Go requires it"],0,"Otherwise removed objects stay reachable."],
+["Why is summing a matrix row by row usually faster than column by column?",["Rows have fewer items","Row order reads contiguous memory and uses the CPU cache well","Columns need locks"],1,"This is spatial locality."]],
+d3:[["Cost of reaching the i-th element of a singly linked list?",["O(1)","O(log n)","O(i)"],2,"You must walk from the head."],
+["Why does Reverse save the next pointer first?",["To count nodes","To sort values","Overwriting cur.next would lose the rest of the list"],2,"Save before you rewire."],
+["Stack ordering is:",["Last in, first out","First in, first out","Sorted"],0,"Push and pop at the same end."],
+["In an LRU cache, what does the map provide?",["Order of use","O(1) lookup of a list node by key","Eviction timing"],1,"The list gives order, the map gives lookup."],
+["What is backpressure?",["Compressing a queue","Reversing a queue","Making producers slow, block or drop when a bounded queue is full"],2,"It prevents unbounded growth."]],
+d4:[["Why is hash map lookup O(1) on average?",["Keys are sorted","The hash picks a bucket directly and chains stay short","It uses binary search"],1,"No scanning is needed unless many keys collide."],
+["What happens when the load factor passes its threshold?",["Entries are deleted","The table switches to a tree","The table grows and rehashes entries"],2,"Doubling keeps insertion amortized O(1)."],
+["With hash % N placement, going from 4 to 5 servers moves about how many keys?",["None","About 80 percent","About 20 percent"],1,"Consistent hashing reduces this to about one over n."],
+["Which cannot be a Go map key?",["a slice","a struct of ints and strings","an array of ints"],0,"Slices are not comparable."],
+["Time for two-sum with a map?",["O(n^2)","O(log n)","O(n) on average"],2,"One pass, with O(1) lookups."]],
+d5:[["In-order traversal of a valid BST yields:",["Values in sorted order","Reverse insertion order","Random order"],0,"Left, node, right."],
+["Inserting 1,2,3,4,5 in order into a plain BST produces:",["A balanced tree","A heap","A right-leaning chain of height n"],2,"Search degrades to O(n)."],
+["For heap array index i, where is the left child?",["i+1","i/2","2i+1"],2,"The right child is 2i+2 and the parent is (i-1)/2."],
+["Cost of pop-min on a binary heap?",["O(log n)","O(1)","O(n)"],0,"Sift down along one path."],
+["Top-k from a stream with a min-heap of size k costs:",["O(n^2) time","O(n log k) time and O(k) memory","O(n log n) time and O(n) memory"],1,"Each item costs O(log k)."]],
+d6:[["Which structure does BFS use?",["Stack","Heap","Queue"],2,"Swap the queue for a stack to get DFS."],
+["BFS finds shortest paths in which graphs?",["Unweighted graphs","Graphs with negative weights","Only trees"],0,"Weighted graphs need Dijkstra."],
+["Time complexity of BFS or DFS with an adjacency list?",["O(V^2)","O(V+E)","O(E log V)"],1,"Each node and edge is processed once."],
+["In three-colour DFS, meeting a grey node means:",["The node is unvisited","The node is finished","A cycle exists"],2,"Grey nodes are on the current path."],
+["Why mark a node visited when enqueueing in BFS?",["Go requires it","To avoid enqueueing the same node several times","To save stack space"],1,"Marking at dequeue allows duplicates."]],
+a1:[["Which sort is O(n log n) in all cases and stable?",["Merge sort","Quicksort","Selection sort"],0,"It always halves and merges."],
+["Worst case of quicksort with bad pivots?",["O(n log n)","O(n)","O(n^2)"],2,"One side of each partition is nearly empty."],
+["What does stable mean for a sort?",["It never panics","Equal elements keep their original relative order","It uses no extra memory"],1,"Important for multi-key sorting."],
+["Lower bound for comparison sorting?",["O(n log n)","O(n)","O(log n)"],0,"There are n! orderings to tell apart."],
+["When can counting sort beat n log n?",["Always","Only if sorted already","When keys are integers in a small range"],2,"It runs in O(n + k)."]]
+};
 const TT={go:["Go language","Learn Go from setup to concurrency and testing. Pass each quiz and finish the exercise to unlock the next skill."],ds:["Data structures","Learn the core structures and what each costs. Pass each quiz and finish the exercise to unlock the next skill."],al:["Algorithms","Sorting, searching, recursion, dynamic programming and graph algorithms, ending in a capstone that combines all three tracks."]};
 function Rich({t}){return h("div",null,t.split("\n\n").map((b,i)=>b.startsWith("## ")?h("h3",{key:i},b.slice(3)):b.startsWith("```")?h("pre",{key:i},b.replace(/^```\w*\n?|```$/g,"")):h("p",{key:i},b)))}
+function Quiz({n,S,set}){
+ const bank=QZ[n.id]||[n.q],need=Math.ceil(0.8*bank.length),[a,setA]=useState({}),[sub,setSub]=useState(false);
+ const score=bank.filter((x,i)=>a[i]===x[2]).length,ok=score>=need,all=Object.keys(a).length===bank.length,pct=Math.round(100*score/bank.length);
+ const submit=()=>{setSub(true);if(ok)set("q"+n.id,true);set("b"+n.id,Math.max(S["b"+n.id]||0,pct))};
+ return h("div",null,h("h4",null,"Quiz: "+bank.length+(bank.length>1?" questions":" question")+", "+need+" correct to pass (80%)"),
+  S["q"+n.id]&&!sub&&h("p",{className:"fb"},"Passed before (best "+(S["b"+n.id]||100)+"%). You can retake it."),
+  bank.map((x,i)=>h("div",{key:i,style:{margin:"14px 0"}},h("p",{style:{margin:"0 0 4px"}},h("b",null,(i+1)+". "+x[0])),
+   x[1].map((o,j)=>h("button",{key:j,disabled:sub,className:"opt"+(sub?(j===x[2]?" ok":j===a[i]?" bad":""):(a[i]===j?" sel":"")),onClick:()=>setA(p=>({...p,[i]:j}))},o)),
+   sub&&h("p",{className:"fb"},(a[i]===x[2]?"Correct. ":"Not quite. ")+x[3]))),
+  !sub?h("button",{className:"opt",disabled:!all,onClick:submit,style:{fontWeight:600}},all?"Submit answers":"Answer all questions to submit"):
+  h("div",null,h("p",null,h("b",null,"Score: "+score+"/"+bank.length+" ("+pct+"%) - "+(ok?"Passed":"Not passed, you need "+need+"/"+bank.length))),
+   h("button",{className:"opt",onClick:()=>{setA({});setSub(false)}},ok?"Retake":"Try again")));
+}
 function Course({S,setS,tr}){
  const L=N.filter(x=>x.tr===tr),done=n=>!!(S["q"+n.id]&&S["e"+n.id]),open=n=>n.pre.every(p=>done(N.find(x=>x.id===p)));
  const [sel,setSel]=useState(()=>(L.find(open)||L[0]).id),[pick,setPick]=useState({});
@@ -367,10 +442,7 @@ function Course({S,setS,tr}){
   h("div",{className:"tree"},h("div",{className:"lane "+tr},L.map(x=>{const o=open(x),d=done(x);
    return h("button",{key:x.id,className:"node"+(d?" done":""),"aria-current":sel===x.id,onClick:()=>{setSel(x.id);setTimeout(()=>document.getElementById("panel").scrollIntoView({behavior:"smooth"}),50)}},h("span",null,x.t),h("span",{className:"st"},d?"Done":o?"Ready":"Locked"))}))),
   open(n)?h("div",{className:"panel",id:"panel"},h("h2",null,n.t),h("p",{className:"fb"},"About "+mins+" min read"),h(Rich,{t:n.tx}),h("pre",null,n.code),
-   h("h4",null,"Quick check"),h("p",null,n.q[0]),
-   n.q[1].map((o,i)=>h("button",{key:i,className:"opt"+(pk===undefined?"":i===n.q[2]?" ok":i===pk?" bad":""),onClick:()=>{setPick(p=>({...p,[n.id]:i}));if(i===n.q[2])set("q"+n.id,true)}},o)),
-   pk!==undefined&&h("p",{className:"fb"},pk===n.q[2]?"Correct. "+n.q[3]:"Not quite, try again."),
-   S["q"+n.id]&&pk===undefined&&h("p",{className:"fb"},"Quiz passed."),
+   h(Quiz,{key:n.id,n,S,set}),
    h("h4",null,"Exercise (write it in your own editor)"),h("p",null,n.ex),
    h("label",null,h("input",{type:"checkbox",checked:!!S["e"+n.id],onChange:e=>set("e"+n.id,e.target.checked)}),h("span",null,"I finished this exercise and it runs"))):
   h("div",{className:"panel",id:"panel"},h("h2",null,n.t),h("p",null,"Locked. Finish first: "+n.pre.filter(p=>!done(N.find(x=>x.id===p))).map(p=>N.find(x=>x.id===p).t).join(", ")+".")),
