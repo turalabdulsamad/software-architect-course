@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { CAPSTONE_ID, LANES, LANE_ORDER, LESSONS, type LaneId, type Lesson } from "@/lib/course";
 import { useProgress } from "@/lib/progress";
+import { ExerciseCheck } from "./ExerciseCheck";
 import { GoCode } from "./GoCode";
 import { QuizBank } from "./QuizBank";
 import { RichText } from "./RichText";
@@ -128,14 +129,7 @@ export function TrainingGround() {
 
           <h3>Exercise · write it in your own editor</h3>
           <p className="exercise">{lesson.exercise}</p>
-          <label className="check">
-            <input
-              type="checkbox"
-              checked={p.exerciseDone(lesson.id)}
-              onChange={(e) => p.setExercise(lesson.id, e.target.checked)}
-            />
-            <span>I finished this exercise and it runs</span>
-          </label>
+          <ExerciseCheck lessonId={lesson.id} />
 
           <div className="lesson-foot">
             <button
