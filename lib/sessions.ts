@@ -1,15 +1,20 @@
+import { laneSession } from "@/components/LaneSession";
+import { LANE_FOR_ROADMAP_ITEM, type LaneId } from "./course";
 import { STAGES, findStage } from "./roadmap";
 
-export type SessionRef = { key: string; stage: string; index: number; slug: string; title: string };
+export type SessionRef = { key: string; stage: string; index: number; slug: string; title: string; lane?: LaneId };
 
 const WRITTEN: Record<string, { slug: string; title: string }> = {
+  "l0.0": { slug: "go-language", title: "Go: from hello world to goroutines" },
+  "l0.1": { slug: "data-structures", title: "Data structures and what they cost" },
+  "l0.2": { slug: "algorithms", title: "Algorithms: sorting, searching, graphs and DP" },
   "l0.5": { slug: "how-the-web-works", title: "How the web works: from a URL to a response" },
 };
 
 export const SESSIONS: SessionRef[] = Object.entries(WRITTEN)
   .map(([key, v]) => {
     const [stage, i] = key.split(".");
-    return { key, stage, index: Number(i), ...v };
+    return { key, stage, index: Number(i), lane: LANE_FOR_ROADMAP_ITEM[key], ...v };
   })
   .sort((a, b) => {
     const sa = STAGES.findIndex((s) => s.id === a.stage);
@@ -35,6 +40,7 @@ export type SessionMeta = {
 };
 
 export async function loadSession(s: SessionRef) {
+  if (s.lane) return laneSession(s.lane);
   const mod = (await import(`@/content/${s.stage}/${s.slug}.mdx`)) as {
     default: React.ComponentType;
     meta: SessionMeta;
